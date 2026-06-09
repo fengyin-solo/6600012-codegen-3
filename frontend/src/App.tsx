@@ -4,6 +4,7 @@ import { OrbitControls, Stars } from '@react-three/drei'
 import ParticleSystem from './components/ParticleSystem'
 import ControlPanel from './components/ControlPanel'
 import StatsOverlay from './components/StatsOverlay'
+import EmitterVisualizers from './components/EmitterVisualizers'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <pointLight position={[10, 10, 10]} />
           <Stars radius={80} depth={50} count={1000} factor={3} />
           <ParticleSystem />
+          <EmitterVisualizers />
           <OrbitControls makeDefault enableDamping />
         </Canvas>
         <StatsOverlay />

@@ -17,7 +17,6 @@ export function applyPhysics(
 
     if (mode === 'gravity') {
       vel[1] -= gravity * dt
-      // Attractor to center
       const dx = -pos[0], dy = -pos[1], dz = -pos[2]
       const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) + 0.01
       const f = attractorStrength / (dist * dist) * dt
@@ -26,7 +25,6 @@ export function applyPhysics(
       vel[2] += dz / dist * f
     } else if (mode === 'collision') {
       vel[1] -= gravity * dt
-      // Elastic collision approximation with neighbours
       for (const q of particles) {
         if (q.id === p.id) continue
         const dx = q.position[0] - pos[0]
@@ -43,7 +41,6 @@ export function applyPhysics(
         }
       }
     } else if (mode === 'fluid') {
-      // Viscous fluid simulation (simplified SPH)
       const pressure = 2.0
       for (const q of particles) {
         if (q.id === p.id) continue
@@ -61,27 +58,22 @@ export function applyPhysics(
       }
       vel[1] -= gravity * dt * 0.5
     } else if (mode === 'vortex') {
-      // Rotational vortex force
       const r = Math.sqrt(pos[0]*pos[0] + pos[2]*pos[2]) + 0.01
       const omega = attractorStrength / (r + 1) * dt
       vel[0] += -pos[2] / r * omega
       vel[2] +=  pos[0] / r * omega
       vel[1] -= gravity * dt * 0.2
-      // Pull towards axis
       vel[0] -= pos[0] / r * dt * 2
       vel[2] -= pos[2] / r * dt * 2
     }
 
-    // Damping
     const d = 1 - damping
     vel[0] *= d; vel[1] *= d; vel[2] *= d
 
-    // Integrate
     pos[0] += vel[0] * dt * 10
     pos[1] += vel[1] * dt * 10
     pos[2] += vel[2] * dt * 10
 
-    // Boundary bounce
     for (let i = 0; i < 3; i++) {
       if (pos[i] > BOUND)  { pos[i] = BOUND;  vel[i] *= -bounce }
       if (pos[i] < -BOUND) { pos[i] = -BOUND; vel[i] *= -bounce }
@@ -90,3 +82,30 @@ export function applyPhysics(
     return { ...p, position: pos, velocity: vel }
   })
 }
+
+export function updateParticleLifetimes(particles: Particle[], dt: number): Particle[] {
+  const alive: Particle[] = []
+
+  for (const p of particles) {
+    if (p.maxLife === Infinity) {
+      alive.push(p)
+      continue
+    }
+
+    const newLife = p.life - dt
+    if (newLife <= 0) continue
+
+    alive.push({
+      ...p,
+      life: newLife,
+    })
+  }
+
+  return alive
+}
+
+export function getParticleLifetimeRatio(p: Particle): number {
+  if (p.maxLife === Infinity) return 0
+  return 1 - (p.life / p.maxLife)
+}
+
