@@ -48,10 +48,9 @@ function Slider({ label, value, min, max, step, onChange, accent = 'blue-500', f
 
 interface EmitterEditorProps {
   emitter: ParticleEmitter
-  index: number
 }
 
-function EmitterEditor({ emitter, index }: EmitterEditorProps) {
+function EmitterEditor({ emitter }: EmitterEditorProps) {
   const updateEmitter = useSimStore(s => s.updateEmitter)
   const removeEmitter = useSimStore(s => s.removeEmitter)
   const [collapsed, setCollapsed] = useState(false)
@@ -275,8 +274,8 @@ export default function ControlPanel() {
                 </button>
               </div>
 
-              {store.emitters.map((emitter, i) => (
-                <EmitterEditor key={emitter.id} emitter={emitter} index={i} />
+              {store.emitters.map((emitter) => (
+                <EmitterEditor key={emitter.id} emitter={emitter} />
               ))}
 
               {store.emitters.length === 0 && (
